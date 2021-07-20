@@ -7,7 +7,7 @@ module.exports = class MessageMapping {
     this.mappedObject = {};
     this.mappedMessage = {};
     this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
-    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg"];
+    this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg", "UserConnectedToTransferEvtMsg", "UserDisconnectedFromTransferEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["PublishedRecordingSysMsg","UnpublishedRecordingSysMsg","DeletedRecordingSysMsg"];
     this.compMeetingEvents = ["meeting_created_message","meeting_destroyed_event"];
@@ -70,6 +70,7 @@ module.exports = class MessageMapping {
           "external-meeting-id": props.meetingProp.extId,
           "name": props.meetingProp.name,
           "is-breakout": props.meetingProp.isBreakout,
+          "parent-id": props.breakoutProps.parentId,
           "duration": props.durationProps.duration,
           "create-time": props.durationProps.createdTime,
           "create-date": props.durationProps.createdDate,
@@ -146,6 +147,7 @@ module.exports = class MessageMapping {
           "name": msgBody.name,
           "role": msgBody.role,
           "presenter": msgBody.presenter,
+          "userdata": msgBody.userdata,
           "stream": msgBody.stream
         }
       },
@@ -159,6 +161,18 @@ module.exports = class MessageMapping {
     } else if (this.mappedObject.data["id"] === "user-audio-voice-disabled") {
       this.mappedObject.data["attributes"]["user"]["listening-only"] = false;
       this.mappedObject.data["attributes"]["user"]["sharing-mic"] = false;
+    } else if (msgHeader.name === "UserConnectedToTransferEvtMsg" ||
+               msgHeader.name === "UserDisconnectedFromTransferEvtMsg") {
+
+      this.mappedObject.data["attributes"]["user"]["internal-user-id"] = msgBody.intUserId;
+      this.mappedObject.data["attributes"]["user"]["external-user-id"] = msgBody.extUserId;
+      this.mappedObject.data["attributes"]["user"]["name"] = msgBody.userName;
+      this.mappedObject.data["attributes"]["user"]["role"] = 'TRANSFER';
+      this.mappedObject.data["attributes"]["user"]["presenter"] = false;
+      this.mappedObject.data["attributes"]["user"]["userdata"] = msgBody.userdata;
+
+      this.mappedObject.data["attributes"]["meeting"]["internal-meeting-id"] = msgBody.intMeetingId;
+      this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = msgBody.extMeetingId;
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
@@ -307,6 +321,11 @@ module.exports = class MessageMapping {
       this.mappedObject.data.attributes["step-time"] = data.step_time;
     }
 
+    if (this.mappedObject.data.id === "rap-archive-ended") {
+      this.mappedObject.data.attributes["recorded"] = data.recorded || false;
+      this.mappedObject.data.attributes["duration"] = data.duration || 0;
+    }
+
     if (data.workflow) {
       this.mappedObject.data.attributes.workflow = data.workflow;
     }
@@ -315,10 +334,10 @@ module.exports = class MessageMapping {
       this.mappedObject.data.attributes.recording = {
         "name": data.metadata.meetingName,
         "is-breakout": data.metadata.isBreakout,
-        "start-time": data.startTime,
-        "end-time": data.endTime,
+        "start-time": data.start_time,
+        "end-time": data.end_time,
         "size": data.playback.size,
-        "raw-size": data.rawSize,
+        "raw-size": data.raw_size,
         "metadata": data.metadata,
         "playback": data.playback,
         "download": data.download
@@ -355,6 +374,8 @@ module.exports = class MessageMapping {
       case "UserEmojiChangedEvtMsg": return "user-emoji-changed";
       case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
       case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
+      case "UserConnectedToTransferEvtMsg": return "user-joined";
+      case "UserDisconnectedFromTransferEvtMsg": return "user-left";
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";
       case "sanity_started": return "rap-sanity-started";

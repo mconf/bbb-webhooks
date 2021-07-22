@@ -171,8 +171,8 @@ module.exports = class MessageMapping {
       this.mappedObject.data["attributes"]["user"]["presenter"] = false;
       this.mappedObject.data["attributes"]["user"]["userdata"] = msgBody.userdata;
 
-      this.mappedObject.data["attributes"]["meeting"]["internal-meeting-id"] = msgBody.intMeetingId;
-      this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = msgBody.extMeetingId;
+      this.mappedObject.data["attributes"]["meeting"]["internal-meeting-id"] = msgHeader.meetingId;
+      this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = IDMapping.getExternalMeetingID(msgHeader.meetingId);
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);

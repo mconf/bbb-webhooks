@@ -6,7 +6,7 @@ module.exports = class MessageMapping {
   constructor() {
     this.mappedObject = {};
     this.mappedMessage = {};
-    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
+    this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg", "WebinarStatusChangedEvtMsg"];
     this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg", "UserConnectedToTransferEvtMsg", "UserDisconnectedFromTransferEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
     this.rapEvents = ["PublishedRecordingSysMsg","UnpublishedRecordingSysMsg","DeletedRecordingSysMsg"];
@@ -347,6 +347,18 @@ module.exports = class MessageMapping {
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }
 
+  handleWebinarStatusChanged(message) {
+    const event = "meeting-transfer";
+    const { core } = message;
+    if (core && core.body) {
+      const { webinar } = core.body;
+      if (typeof webinar === 'boolean') {
+        if (webinar) return `${event}-enabled`;
+        return `${event}-disabled`;
+      }
+    }
+    return `${event}-unhandled`;
+  }
 
   mapInternalMessage(message) {
     let name;
@@ -360,6 +372,7 @@ module.exports = class MessageMapping {
       case "MeetingCreatedEvtMsg": return "meeting-created";
       case "MeetingDestroyedEvtMsg": return "meeting-ended";
       case "RecordingStatusChangedEvtMsg": return "meeting-recording-changed";
+      case "WebinarStatusChangedEvtMsg": return this.handleWebinarStatusChanged(message);
       case "ScreenshareRtmpBroadcastStartedEvtMsg": return "meeting-screenshare-started";
       case "ScreenshareRtmpBroadcastStoppedEvtMsg": return "meeting-screenshare-stopped";
       case "SetCurrentPresentationEvtMsg": return "meeting-presentation-changed";

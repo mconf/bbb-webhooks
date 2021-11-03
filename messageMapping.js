@@ -212,6 +212,9 @@ module.exports = class MessageMapping {
         "ts": Date.now()
       }
     };
+    if (msgBody.bot) {
+      this.mappedObject.data["attributes"]["user"]["role"] = 'BOT';
+    }
     if (this.mappedObject.data["id"] === "user-audio-voice-enabled") {
       this.mappedObject.data["attributes"]["user"]["listening-only"] = msgBody.listenOnly;
       this.mappedObject.data["attributes"]["user"]["sharing-mic"] = ! msgBody.listenOnly;

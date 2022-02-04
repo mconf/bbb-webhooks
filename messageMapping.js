@@ -29,8 +29,7 @@ module.exports = class MessageMapping {
       "UserDisconnectedFromTransferEvtMsg",
     ];
     this.chatEvents = [
-      "SendPublicMessageEvtMsg",
-      "SendPrivateMessageEvtMsg",
+      "GroupChatMessageBroadcastEvtMsg",
     ];
     this.rapEvents = [
       "PublishedRecordingSysMsg",
@@ -70,6 +69,9 @@ module.exports = class MessageMapping {
       "unpublished",
       "deleted",
     ];
+    this.padEvents = [
+      "PadContentEvtMsg"
+    ];
   }
 
   // Map internal message based on it's type
@@ -88,6 +90,8 @@ module.exports = class MessageMapping {
       this.compUserTemplate(messageObj);
     } else if (this.mappedEvent(messageObj,this.compRapEvents)) {
       this.compRapTemplate(messageObj);
+    } else if (this.mappedEvent(messageObj,this.padEvents)) {
+      this.padTemplate(messageObj);
     }
   }
 
@@ -138,6 +142,15 @@ module.exports = class MessageMapping {
           "dial-number": props.voiceProp.dialNumber,
           "max-users": props.usersProp.maxUsers,
           "metadata": props.metadataProp.metadata
+        }
+      };
+    }
+    if (messageObj.envelope.name === "SetCurrentPresentationEvtMsg") {
+      this.mappedObject.data.attributes = {
+        "meeting":{
+          "internal-meeting-id": meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(meetingId),
+          "presentation-id": messageObj.core.body.presentationId
         }
       };
     }
@@ -302,7 +315,10 @@ module.exports = class MessageMapping {
 
   // Map internal to external message for chat information
   chatTemplate(messageObj) {
-    const message = messageObj.core.body.message;
+    const { body } = messageObj.core;
+    // Ignore private chats
+    if (body.chatId !== 'MAIN-PUBLIC-GROUP-CHAT') return;
+
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -312,25 +328,20 @@ module.exports = class MessageMapping {
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "chat-message":{
-          "message": message.message,
+          "message": body.msg.message,
           "sender":{
-            "internal-user-id": message.fromUserId,
-            "external-user-id": message.fromUsername,
-            "timezone-offset": message.fromTimezoneOffset,
-            "time": message.fromTime
+            "internal-user-id": body.msg.sender.id,
+            "external-user-id": body.msg.sender.name,
+            "timezone-offset": body.msg.fromTimezoneOffset,
+            "time": body.msg.timestamp
           }
-        }
+        },
+        "chat-id": body.chatId
       },
       "event":{
         "ts": Date.now()
       }
     };
-    if (messageObj.envelope.name.indexOf("Private") !== -1) {
-      this.mappedObject.data.attributes["chat-message"].receiver = {
-        "internal-user-id": message.toUserId,
-        "external-user-id": message.toUsername
-      };
-    }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }
@@ -447,6 +458,36 @@ module.exports = class MessageMapping {
     }
   }
 
+  padTemplate(messageObj) {
+    const {
+      body,
+      header,
+    } = messageObj.core;
+    this.mappedObject.data = {
+      "type": "event",
+      "id": this.mapInternalMessage(messageObj),
+      "attributes":{
+        "meeting":{
+          "internal-meeting-id": header.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(header.meetingId)
+        },
+        "pad":{
+          "id": body.padId,
+          "external-pad-id": body.externalId,
+          "rev": body.rev,
+          "start": body.start,
+          "end": body.end,
+          "text": body.text
+        }
+      },
+      "event":{
+        "ts": Date.now()
+      }
+    };
+    this.mappedMessage = JSON.stringify(this.mappedObject);
+    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+  }
+
   mapInternalMessage(message) {
     let name;
     if (message.envelope) {
@@ -472,8 +513,7 @@ module.exports = class MessageMapping {
       case "PresenterAssignedEvtMsg": return "user-presenter-assigned";
       case "PresenterUnassignedEvtMsg": return "user-presenter-unassigned";
       case "UserEmojiChangedEvtMsg": return "user-emoji-changed";
-      case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
-      case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
+      case "GroupChatMessageBroadcastEvtMsg": return "chat-group-message-sent";
       case "UserConnectedToTransferEvtMsg": return "user-joined";
       case "UserDisconnectedFromTransferEvtMsg": return "user-left";
       case "archive_started": return "rap-archive-started";
@@ -506,6 +546,7 @@ module.exports = class MessageMapping {
       case "user_shared_webcam_message": return "user-cam-broadcast-start";
       case "video_stream_unpublished": return "user-cam-broadcast-end";
       case "user_status_changed_message": return this.handleUserStatusChanged(message);
+      case "PadContentEvtMsg": return "pad-content";
     } })();
     return mappedMsg;
   }

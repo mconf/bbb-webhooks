@@ -155,7 +155,7 @@ module.exports = class MessageMapping {
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compMeetingTemplate(messageObj) {
@@ -195,7 +195,7 @@ module.exports = class MessageMapping {
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -248,7 +248,7 @@ module.exports = class MessageMapping {
       this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = IDMapping.getExternalMeetingID(msgHeader.meetingId);
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -310,7 +310,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for chat information
@@ -343,7 +343,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   rapTemplate(messageObj) {
@@ -362,7 +362,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compRapTemplate(messageObj) {
@@ -415,7 +415,7 @@ module.exports = class MessageMapping {
       }
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   handleRecordingStatusChanged(message) {
@@ -485,7 +485,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   mapInternalMessage(message) {

@@ -246,6 +246,10 @@ module.exports = class MessageMapping {
 
       this.mappedObject.data["attributes"]["meeting"]["internal-meeting-id"] = msgHeader.meetingId;
       this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = IDMapping.getExternalMeetingID(msgHeader.meetingId);
+    } else if (this.mappedObject.data["id"] === "user-emoji-changed") {
+      if (msgBody.emoji !== "none") {
+        this.mappedObject.data["attributes"]["user"]["emoji"] = msgBody.emoji;
+      }
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
     Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
@@ -328,11 +332,11 @@ module.exports = class MessageMapping {
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "chat-message":{
+          "id": body.msg.id,
           "message": body.msg.message,
           "sender":{
             "internal-user-id": body.msg.sender.id,
-            "external-user-id": body.msg.sender.name,
-            "timezone-offset": body.msg.fromTimezoneOffset,
+            "name": body.msg.sender.name,
             "time": body.msg.timestamp
           }
         },

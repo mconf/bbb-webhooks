@@ -2,12 +2,12 @@
 
 This is a node.js application that listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API. A hook is any external URL that can receive HTTP POST requests.
 
-You can read the full documentation at: https://docs.bigbluebutton.org/dev/webhooks.html
+You can read the full documentation at: https://docs.bigbluebutton.org/development/webhooks/
 
 
 ## Development
 
-With a [working development](https://docs.bigbluebutton.org/2.2/dev.html#setup-a-development-environment) environment, follow the commands below from within the `bigbluebutton/bbb-webhooks` directory.
+With a [working development](https://docs.bigbluebutton.org/development/guide#set-up-a-development-environment) environment, follow the commands below from within the `bigbluebutton/bbb-webhooks` directory.
 
 1. Install the node dependencies:
     - `npm install`

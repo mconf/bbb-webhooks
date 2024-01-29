@@ -73,6 +73,9 @@ export default class WebhooksEvent {
       "UserReactionEmojiChangedEvtMsg",
       // 2.7+
       "UserRaiseHandChangedEvtMsg",
+      // Mconf
+      "UserConnectedToTransferEvtMsg",
+      "UserDisconnectedFromTransferEvtMsg",
     ],
     CHAT_EVENTS: [
       "GroupChatMessageBroadcastEvtMsg",
@@ -324,6 +327,29 @@ export default class WebhooksEvent {
       default:
         break;
     }
+
+    // Mconf-specific events
+    switch (msgHeader.name) {
+      case "UserConnectedToTransferEvtMsg":
+      case "UserDisconnectedFromTransferEvtMsg":
+        this.outputEvent.data.attributes.user = {
+          ...this.outputEvent.data.attributes.user,
+          "internal-user-id": msgBody.intUserId,
+          "external-user-id": msgBody.extUserId,
+          "name": msgBody.userName,
+          "role": "TRANSFER",
+          "presenter": false,
+          "userdata": msgBody.userdata
+        };
+
+        this.outputEvent.data.attributes.meeting = {
+          "internal-meeting-id": msgHeader.meetingId,
+          "external-meeting-id": IDMapping.get().getExternalMeetingID(msgHeader.meetingId),
+        };
+        break;
+      default:
+        break;
+    }
   }
 
   // Map internal to external message for chat information
@@ -546,6 +572,9 @@ export default class WebhooksEvent {
       case "PadContentEvtMsg": return "pad-content";
       case "PollStartedEvtMsg": return "poll-started";
       case "UserRespondedToPollRespMsg": return "poll-responded";
+      // Mconf
+      case "UserConnectedToTransferEvtMsg": return "user-joined";
+      case "UserDisconnectedFromTransferEvtMsg": return "user-left";
       // RAP
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";

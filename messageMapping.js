@@ -72,6 +72,10 @@ module.exports = class MessageMapping {
     this.padEvents = [
       "PadContentEvtMsg"
     ];
+    this.pollEvents = [
+      "PollStartedEvtMsg",
+      "UserRespondedToPollRespMsg",
+    ];
   }
 
   // Map internal message based on it's type
@@ -92,6 +96,8 @@ module.exports = class MessageMapping {
       this.compRapTemplate(messageObj);
     } else if (this.mappedEvent(messageObj,this.padEvents)) {
       this.padTemplate(messageObj);
+    } else if (this.mappedEvent(messageObj,this.pollEvents)) {
+      this.pollTemplate(messageObj);
     }
   }
 
@@ -155,7 +161,7 @@ module.exports = class MessageMapping {
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compMeetingTemplate(messageObj) {
@@ -195,7 +201,7 @@ module.exports = class MessageMapping {
       };
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -246,9 +252,13 @@ module.exports = class MessageMapping {
 
       this.mappedObject.data["attributes"]["meeting"]["internal-meeting-id"] = msgHeader.meetingId;
       this.mappedObject.data["attributes"]["meeting"]["external-meeting-id"] = IDMapping.getExternalMeetingID(msgHeader.meetingId);
+    } else if (this.mappedObject.data["id"] === "user-emoji-changed") {
+      if (msgBody.emoji !== "none") {
+        this.mappedObject.data["attributes"]["user"]["emoji"] = msgBody.emoji;
+      }
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for user information
@@ -310,7 +320,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   // Map internal to external message for chat information
@@ -328,11 +338,11 @@ module.exports = class MessageMapping {
           "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
         },
         "chat-message":{
+          "id": body.msg.id,
           "message": body.msg.message,
           "sender":{
             "internal-user-id": body.msg.sender.id,
-            "external-user-id": body.msg.sender.name,
-            "timezone-offset": body.msg.fromTimezoneOffset,
+            "name": body.msg.sender.name,
             "time": body.msg.timestamp
           }
         },
@@ -343,7 +353,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   rapTemplate(messageObj) {
@@ -362,7 +372,7 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   compRapTemplate(messageObj) {
@@ -415,7 +425,7 @@ module.exports = class MessageMapping {
       }
     }
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   handleRecordingStatusChanged(message) {
@@ -485,7 +495,43 @@ module.exports = class MessageMapping {
       }
     };
     this.mappedMessage = JSON.stringify(this.mappedObject);
-    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
+  }
+
+  pollTemplate(messageObj) {
+    const msgBody = messageObj.core.body;
+    const msgHeader = messageObj.core.header;
+    const extId = UserMapping.getExternalUserID(msgHeader.userId) || msgBody.extId || "";
+    this.mappedObject.data = {
+      "type": "event",
+      "id": this.mapInternalMessage(messageObj),
+      "attributes":{
+        "meeting":{
+          "internal-meeting-id": messageObj.envelope.routing.meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(messageObj.envelope.routing.meetingId)
+        },
+        "user":{
+          "internal-user-id": msgHeader.userId,
+          "external-user-id": extId,
+        },
+        "poll":{
+          "id": msgBody.pollId
+        }
+      },
+      "event":{
+        "ts": Date.now()
+      }
+    };
+
+    if (this.mappedObject.data["id"] === "poll-started") {
+      this.mappedObject.data["attributes"]["poll"]["question"] = msgBody.question;
+      this.mappedObject.data["attributes"]["poll"]["answers"] = msgBody.poll.answers;
+    } else if (this.mappedObject.data["id"] === "poll-responded") {
+      this.mappedObject.data["attributes"]["poll"]["answerIds"] = msgBody.answerIds;
+    }
+
+    this.mappedMessage = JSON.stringify(this.mappedObject);
+    Logger.info(`[MessageMapping] Mapped message: ${this.mappedMessage}`);
   }
 
   mapInternalMessage(message) {
@@ -547,6 +593,8 @@ module.exports = class MessageMapping {
       case "video_stream_unpublished": return "user-cam-broadcast-end";
       case "user_status_changed_message": return this.handleUserStatusChanged(message);
       case "PadContentEvtMsg": return "pad-content";
+      case "PollStartedEvtMsg": return "poll-started";
+      case "UserRespondedToPollRespMsg": return "poll-responded";
     } })();
     return mappedMsg;
   }

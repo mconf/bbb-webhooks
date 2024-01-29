@@ -58,6 +58,8 @@ export default class WebhooksEvent {
       "ScreenshareRtmpBroadcastStoppedEvtMsg",
       "SetCurrentPresentationEvtMsg",
       "RecordingStatusChangedEvtMsg",
+      // Mconf
+      "TransferStatusChangedEvtMsg",
     ],
     USER_EVENTS: [
       "UserJoinedMeetingEvtMsg",
@@ -543,6 +545,22 @@ export default class WebhooksEvent {
     }
   }
 
+  // Mconf
+  handleTransferStatusChanged(message) {
+    const event = "meeting-transfer";
+    const { core } = message;
+
+    if (core && core.body) {
+      const { transfer } = core.body;
+      if (typeof transfer === 'boolean') {
+        if (transfer) return `${event}-enabled`;
+        return `${event}-disabled`;
+      }
+    }
+
+    return `${event}-unhandled`;
+  }
+
   mapInternalMessage(message) {
     const name = message?.envelope?.name || message?.header?.name;
 
@@ -575,6 +593,7 @@ export default class WebhooksEvent {
       // Mconf
       case "UserConnectedToTransferEvtMsg": return "user-joined";
       case "UserDisconnectedFromTransferEvtMsg": return "user-left";
+      case "TransferStatusChangedEvtMsg": return this.handleTransferStatusChanged(message);
       // RAP
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";

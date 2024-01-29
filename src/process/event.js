@@ -282,7 +282,10 @@ export default class WebhooksEvent {
             "internal-user-id": msgHeader.userId,
             "external-user-id": extId,
             "name": msgBody.name,
-            "role": msgBody.role,
+            // Mconf specific - tertiary "BOT" role. Following same pattern as webhooks@v2,
+            // but this taints BBB user roles with a non-standard role.
+            // Move it to a separate attribute in the future - prlanzarin FIXME
+            "role": msgBody.bot ? "BOT" : msgBody.role,
             "presenter": msgBody.presenter,
             "userdata": msgBody.userdata,
             "stream": msgBody.stream

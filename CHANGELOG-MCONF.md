@@ -2,8 +2,9 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
-### v3.0.0-mconf.1 (UNRELEASED)
+### v2.0.0
 
-* feat: add BOT role
-* feat: handle user join/left via transfer
-* feat: add meeting-transfer-enabled/disabled events
+* !build: merge with bigbluebutton/webhooks@v3.0.0 (see CHANGELOG.md)
+* feat: restore BOT role
+* feat: restore handle user join/left via transfer
+* feat: restore meeting-transfer-enabled/disabled events

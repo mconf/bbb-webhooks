@@ -273,7 +273,8 @@ export default class WebhooksEvent {
   userTemplate(messageObj) {
     const msgBody = messageObj.core.body;
     const msgHeader = messageObj.core.header;
-    const extId = UserMapping.get().getExternalUserID(msgHeader.userId) || msgBody.extId || "";
+    const userId = msgHeader.userId;
+    const extId = UserMapping.get().getExternalUserID(userId) || msgBody.extId || "";
     this.outputEvent = {
       data: {
         "type": "event",
@@ -284,7 +285,7 @@ export default class WebhooksEvent {
             "external-meeting-id": IDMapping.get().getExternalMeetingID(messageObj.envelope.routing.meetingId)
           },
           "user":{
-            "internal-user-id": msgHeader.userId,
+            "internal-user-id": userId,
             "external-user-id": extId,
             "name": msgBody.name,
             // Mconf specific - tertiary "BOT" role. Following same pattern as webhooks@v2,
@@ -324,6 +325,14 @@ export default class WebhooksEvent {
       }
       case "user-raise-hand-changed": {
         this.outputEvent.data["attributes"]["user"]["raise-hand"] = msgBody.raiseHand;
+        break;
+      }
+      case "user-joined":
+      case "user-left": {
+        const guest = msgBody.guest ?? UserMapping.get().isGuest(userId);
+        this.outputEvent.data["attributes"]["user"]["guest"] = typeof guest === 'boolean'
+          ? guest
+          : guest === 'true';
         break;
       }
       default:

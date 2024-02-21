@@ -2,6 +2,11 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+### v2.1.0
+
+* !build: merge with bigbluebutton/webhooks@v3.1.0 (see CHANGELOG.md)
+* feat(events): add guest field to user-joined/user-left
+
 ### v2.0.0
 
 * !build: merge with bigbluebutton/webhooks@v3.0.0 (see CHANGELOG.md)

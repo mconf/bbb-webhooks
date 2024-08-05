@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+### v3.2.0
+
+* feat(xapi): add support for Basic auth via meta_secret-lrs-payload
+* fix(xapi): LRS credentials wouldn't persist in the database
+* fix: remove cache-to from image push to make dockerhub images usable
+* build: nodemon@3.1.4
+* build: express@4.19.2
+
 ### v3.1.0
 
 * feat(events): add guest field to user-joined/user-left

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### v3.2.1
+
+* fix: catch all HTTPServer errors in the prom module
+* fix: app stalling due to borked shutdown procedure
+* build: mocha@10.7.0
+* build: fast-xml-parser@4.4.1
+
 ### v3.2.0
 
 * feat(xapi): add support for Basic auth via meta_secret-lrs-payload

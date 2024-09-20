@@ -21,7 +21,7 @@
   "dependencies": {
     "bullmq": "4.17.0",
     "config": "^3.3.7",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "js-yaml": "^4.1.0",
     "luxon": "^3.4.3",
     "node-fetch": "^3.3.2",
@@ -34,7 +34,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "eslint": "^8.49.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-jsdoc": "^46.8.2",

@@ -3,7 +3,7 @@
   "version": "3.2.2",
   "description": "A BigBlueButton mudule for events WebHooks",
   "type": "module",
-  "mconf_version": "2.2.1",
+  "mconf_version": "2.2.2",
   "scripts": {
     "start": "node app.js",
     "dev-start": "nodemon --watch src --ext js,json,yml,yaml --exec node app.js",

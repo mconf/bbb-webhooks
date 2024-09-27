@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+### v3.3.0
+
+* feat(metrics): add gauges for meeting and user Redis mappings
+* fix(metrics): properly handle Prometheus collection failures
+* fix(metrics): handle promises in setCollectorWithGenerator
+
 ### v3.2.2
 
 * fix: handle missing checksum in API requests

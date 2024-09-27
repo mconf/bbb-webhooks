@@ -49,14 +49,13 @@ class PrometheusScrapeAgent {
   async _collect (response) {
     try {
       const _response = await this.collect(response);
-      _response.writeHead(200, { 'Content-Type': promclient.register.contentType });
       const content = await promclient.register.metrics();
+      _response.writeHead(200, { 'Content-Type': promclient.register.contentType });
       _response.end(content);
     } catch (error) {
+      this.logger.error('Prometheus: error collecting metrics', error);
       response.writeHead(500)
-      response.end(error.message);
-      this.logger.error('Prometheus: error collecting metrics',
-        { errorCode: error.code, errorMessage: error.message });
+      response.end("Error collecting metrics");
     }
   }
 
@@ -172,8 +171,9 @@ class PrometheusScrapeAgent {
       /**
        * metric.collect.
        */
-      metric.collect = () => {
-        metric.set(generator());
+      metric.collect = async () => {
+        const value = await generator();
+        metric.set(value);
       };
     }
   }

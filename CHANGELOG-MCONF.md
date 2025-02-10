@@ -2,6 +2,10 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+### v2.3.1
+
+* build: merge with bigbluebutton/bbb-webhooks@v3.3.1 (see CHANGELOG.md)
+
 ### v2.3.0
 
 * build: merge with bigbluebutton/bbb-webhooks@v3.3.0 (see CHANGELOG.md)

@@ -63,6 +63,7 @@ export default class WebhooksEvent {
     ],
     USER_EVENTS: [
       "UserJoinedMeetingEvtMsg",
+      "UserConnectedToTransferSysMsg",
       "UserLeftMeetingEvtMsg",
       "UserMutedVoiceEvtMsg",
       "UserJoinedVoiceConfToClientEvtMsg",
@@ -293,6 +294,9 @@ export default class WebhooksEvent {
             // Move it to a separate attribute in the future - prlanzarin FIXME
             "role": msgBody.bot ? "BOT" : msgBody.role,
             "presenter": msgBody.presenter,
+            "ip_addr": msgBody.ip_addr,
+            "user_agent": msgBody.user_agent,
+            "referer": msgBody.referer,
             // All variations of user data nomenclature in UserJoinedMeetingEvtMsg
             // as they keep changing the field name
             "userdata": msgBody?.userdata || msgBody?.userMetadata || msgBody?.userCustomData,
@@ -583,6 +587,7 @@ export default class WebhooksEvent {
       case "ScreenshareRtmpBroadcastStoppedEvtMsg": return "meeting-screenshare-stopped";
       case "SetCurrentPresentationEvtMsg": return "meeting-presentation-changed";
       case "UserJoinedMeetingEvtMsg": return "user-joined";
+      case "UserConnectedToTransferSysMsg": return "user-connected-to-transfer";
       case "UserLeftMeetingEvtMsg": return "user-left";
       case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
       case "UserLeftVoiceConfToClientEvtMsg": return "user-audio-voice-disabled";

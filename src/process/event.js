@@ -63,7 +63,6 @@ export default class WebhooksEvent {
     ],
     USER_EVENTS: [
       "UserJoinedMeetingEvtMsg",
-      "UserConnectedToTransferSysMsg",
       "UserLeftMeetingEvtMsg",
       "UserMutedVoiceEvtMsg",
       "UserJoinedVoiceConfToClientEvtMsg",
@@ -77,7 +76,9 @@ export default class WebhooksEvent {
       // 2.7+
       "UserRaiseHandChangedEvtMsg",
       // Mconf
+      "UserConnectedToTransferSysMsg",
       "UserConnectedToTransferEvtMsg",
+      "UserDisconnectedFromTransferSysMsg",
       "UserDisconnectedFromTransferEvtMsg",
     ],
     CHAT_EVENTS: [
@@ -587,7 +588,6 @@ export default class WebhooksEvent {
       case "ScreenshareRtmpBroadcastStoppedEvtMsg": return "meeting-screenshare-stopped";
       case "SetCurrentPresentationEvtMsg": return "meeting-presentation-changed";
       case "UserJoinedMeetingEvtMsg": return "user-joined";
-      case "UserConnectedToTransferSysMsg": return "user-connected-to-transfer";
       case "UserLeftMeetingEvtMsg": return "user-left";
       case "UserJoinedVoiceConfToClientEvtMsg": return "user-audio-voice-enabled";
       case "UserLeftVoiceConfToClientEvtMsg": return "user-audio-voice-disabled";
@@ -607,8 +607,10 @@ export default class WebhooksEvent {
       case "PollStartedEvtMsg": return "poll-started";
       case "UserRespondedToPollRespMsg": return "poll-responded";
       // Mconf
+      case "UserConnectedToTransferSysMsg": return "user-joined";
       case "UserConnectedToTransferEvtMsg": return "user-joined";
       case "UserDisconnectedFromTransferEvtMsg": return "user-left";
+      case "UserDisconnectedFromTransferSysMsg": return "user-left";
       case "TransferStatusChangedEvtMsg": return this.handleTransferStatusChanged(message);
       // RAP
       case "archive_started": return "rap-archive-started";

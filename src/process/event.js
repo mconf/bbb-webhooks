@@ -76,7 +76,9 @@ export default class WebhooksEvent {
       // 2.7+
       "UserRaiseHandChangedEvtMsg",
       // Mconf
+      "UserConnectedToTransferSysMsg",
       "UserConnectedToTransferEvtMsg",
+      "UserDisconnectedFromTransferSysMsg",
       "UserDisconnectedFromTransferEvtMsg",
     ],
     CHAT_EVENTS: [
@@ -293,6 +295,9 @@ export default class WebhooksEvent {
             // Move it to a separate attribute in the future - prlanzarin FIXME
             "role": msgBody.bot ? "BOT" : msgBody.role,
             "presenter": msgBody.presenter,
+            "ip_addr": msgBody.ip_addr,
+            "user_agent": msgBody.user_agent,
+            "referer": msgBody.referer,
             // All variations of user data nomenclature in UserJoinedMeetingEvtMsg
             // as they keep changing the field name
             "userdata": msgBody?.userdata || msgBody?.userMetadata || msgBody?.userCustomData,
@@ -602,8 +607,10 @@ export default class WebhooksEvent {
       case "PollStartedEvtMsg": return "poll-started";
       case "UserRespondedToPollRespMsg": return "poll-responded";
       // Mconf
+      case "UserConnectedToTransferSysMsg": return "user-joined";
       case "UserConnectedToTransferEvtMsg": return "user-joined";
       case "UserDisconnectedFromTransferEvtMsg": return "user-left";
+      case "UserDisconnectedFromTransferSysMsg": return "user-left";
       case "TransferStatusChangedEvtMsg": return this.handleTransferStatusChanged(message);
       // RAP
       case "archive_started": return "rap-archive-started";

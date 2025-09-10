@@ -2,6 +2,11 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+### UNRELEASED
+
+* feat: added IP, User Agent and Referer fields to the UserJoinedMeetingEvtMsg and UserConnectedToTransferSysMsg events
+* fix: correctly positions new messages and aligns with old messages
+
 ### v2.3.1
 
 * build: merge with bigbluebutton/bbb-webhooks@v3.3.1 (see CHANGELOG.md)

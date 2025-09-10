@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+### UNRELEASED
+
+* build: address npm audit issues
+* build: bullmq@v4.18.3
+
 ### v3.3.1
 
 * fix: missing userdata in user-joined event (BBB 2.7 and 3.0)

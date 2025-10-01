@@ -2,6 +2,10 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+### v2.4.0-1
+
+* fix: broken user events due to incompatible transfer evt processing efbdb0a6
+
 ### v2.4.0
 
 * feat: added IP, User Agent and Referer fields to the UserJoinedMeetingEvtMsg and UserConnectedToTransferSysMsg events 3746d4ac

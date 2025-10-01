@@ -414,7 +414,7 @@ export default class WebhooksEvent {
     }
 
     // Mconf-specific events
-    switch (msgHeader.name) {
+    switch (messageObj?.core?.header?.name) {
       case "UserConnectedToTransferEvtMsg":
       case "UserDisconnectedFromTransferEvtMsg":
         this.outputEvent.data.attributes.user = {
@@ -428,8 +428,8 @@ export default class WebhooksEvent {
         };
 
         this.outputEvent.data.attributes.meeting = {
-          "internal-meeting-id": msgHeader.meetingId,
-          "external-meeting-id": IDMapping.get().getExternalMeetingID(msgHeader.meetingId),
+          "internal-meeting-id": meetingId,
+          "external-meeting-id": IDMapping.get().getExternalMeetingID(meetingId),
         };
         break;
       default:

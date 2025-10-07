@@ -2,6 +2,11 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+### v2.4.0-2
+
+* feat: add `session-token` attribute to `user-joined` event ee07035b
+* fix: incorrect parsing and naming for ip-address and user-agent (user-joined) b3d8c2a1
+
 ### v2.4.0-1
 
 * fix: broken user events due to incompatible transfer evt processing efbdb0a6

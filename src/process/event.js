@@ -362,8 +362,8 @@ export default class WebhooksEvent {
             // Move it to a separate attribute in the future - prlanzarin FIXME
             "role": msgBody.bot ? "BOT" : msgBody.role,
             "presenter": msgBody.presenter,
-            "ip_addr": msgBody.ip_addr,
-            "user_agent": msgBody.user_agent,
+            "ip-address": msgBody.ipAddress,
+            "user-agent": msgBody.userAgent,
             "referer": msgBody.referer,
             // All variations of user data nomenclature in UserJoinedMeetingEvtMsg
             // as they keep changing the field name

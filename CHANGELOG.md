@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 * build(deps): js-yaml@4.1.1
 * build(deps): sinon@21.0.1
 * build(deps): express@4.22.1, body-parser@1.20.4
+* build(deps): mocha@11.7.5
 
 ### v3.5.0
 

@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ### UNRELEASED
 
+* feat: add docker matrix build to support arm64
+* fix: parse boolean environment variables as booleans, not strings
 * refactor: pull ip address, user agent, referer and session token from joinRequestMetadata
 
 ### v3.5.0

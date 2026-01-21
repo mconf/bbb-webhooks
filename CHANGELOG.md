@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-### UNRELEASED
+### v3.6.0
 
 * feat: add docker matrix build to support arm64
 * fix: parse boolean environment variables as booleans, not strings

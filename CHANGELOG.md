@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+### UNRELEASED
+
+* refactor: pull ip address, user agent, referer and session token from joinRequestMetadata
+
 ### v3.5.0
 
 * feat: emit transcript-updated event

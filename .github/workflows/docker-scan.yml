@@ -1,6 +1,16 @@
 name: Run trivy on filesystem
 on:
   workflow_dispatch:
+  workflow_call:
+  push:
+    branches:
+      - develop
+      - main
+    tags:
+      - '*'
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
 permissions:
   contents: read
 jobs:

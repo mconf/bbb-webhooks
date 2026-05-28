@@ -347,6 +347,7 @@ export default class WebhooksEvent {
   // Map internal to external message for user information
   userTemplate(messageObj) {
     const msgBody = messageObj.core.body;
+    const joinRequestMetadata = msgBody.joinRequestMetadata || {};
     const userId = this._extractIntUserID(messageObj);
     const extId = UserMapping.get().getExternalUserID(userId) || msgBody.extId || "";
     const meetingId = this._extractIntMeetingID(messageObj);
@@ -368,10 +369,11 @@ export default class WebhooksEvent {
             // Move it to a separate attribute in the future - prlanzarin FIXME
             "role": msgBody.bot ? "BOT" : msgBody.role,
             "presenter": msgBody.presenter,
-            "ip-address": msgBody.ipAddress,
-            "user-agent": msgBody.userAgent,
-            "referer": msgBody.referer,
-            "session-token": msgBody.sessionToken,
+            // ip-address until session-token: fields in msgBody are for backwards compatibility
+            "ip-address": joinRequestMetadata?.ipAddress || msgBody?.ipAddress,
+            "user-agent": joinRequestMetadata?.userAgent || msgBody?.userAgent,
+            "referer": joinRequestMetadata?.referer || msgBody?.referer,
+            "session-token": joinRequestMetadata?.sessionToken || msgBody?.sessionToken,
             // All variations of user data nomenclature in UserJoinedMeetingEvtMsg
             // as they keep changing the field name
             "userdata": msgBody?.userdata || msgBody?.userMetadata || msgBody?.userCustomData,

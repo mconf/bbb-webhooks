@@ -10,12 +10,18 @@ redis:
 
 log:
   level: LOG_LEVEL
-  stdout: LOG_TO_STDOUT
-  file: LOG_TO_FILE
+  stdout:
+    __name: LOG_TO_STDOUT
+    __format: json
+  file:
+    __name: LOG_TO_FILE
+    __format: json
   filename: LOG_FILENAME
 
 prometheus:
-  enabled: PROM_ENABLED
+  enabled:
+    __name: PROM_ENABLED
+    __format: json
   host: PROM_HOST
   port: PROM_PORT
   path: PROM_PATH
@@ -58,4 +64,6 @@ modules:
         __name: REQUEST_TIMEOUT
         __format: json
   ../out/xapi/index.js:
-    enabled: XAPI_ENABLED
+    enabled:
+        __name: XAPI_ENABLED
+        __format: json

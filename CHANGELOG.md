@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### UNRELEASED
 
 * fix: re-enable test and hadolint workflows
+* build(deps): uuid@14.0.0 (up from v9.0.1)
 
 ### v3.6.0
 

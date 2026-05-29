@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 * build(deps): express@4.22.2 (up from 4.22.1)
 * build(deps): luxon@3.7.2 (up from 3.4.4)
 * build(deps): pino@10.3.1 (up from 9.14.0)
+* build(deps): prom-client@15.1.3 (up from 14.2.0)
 
 ### v3.6.0
 

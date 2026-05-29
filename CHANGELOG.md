@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 * fix: re-enable test and hadolint workflows
 * build(deps): uuid@14.0.0 (up from v9.0.1)
+* build(deps): node-config@3.3.12 (up from 3.3.9)
 
 ### v3.6.0
 

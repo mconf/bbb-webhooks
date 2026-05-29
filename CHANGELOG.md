@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 * build(deps): uuid@14.0.0 (up from v9.0.1)
 * build(deps): node-config@3.3.12 (up from 3.3.9)
 * build(deps): express@4.22.2 (up from 4.22.1)
+* build(deps): luxon@3.7.2 (up from 3.4.4)
 
 ### v3.6.0
 

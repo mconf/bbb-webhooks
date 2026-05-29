@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 * build(deps): pino@10.3.1 (up from 9.14.0)
 * build(deps): prom-client@15.1.3 (up from 14.2.0)
 * build(deps): redis@4.7.1 (up from 4.6.8)
+* build(deps): bump dev dependencies
 
 ### v3.6.0
 

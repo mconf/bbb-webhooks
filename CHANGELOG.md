@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-### UNRELEASED
+### v3.6.1
 
 * fix: re-enable test and hadolint workflows
 * fix: better specify webhook failure in logs and Prometheus metrics

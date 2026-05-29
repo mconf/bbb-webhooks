@@ -185,9 +185,10 @@ export default class CallbackEmitter extends EventEmitter {
       if (error.code == null) error.code = 'unknown';
       this.logger.warn(`error in the callback call to: [${callbackURL}]`, {
         event: stringifiedEvent,
+        callbackURL,
         errorMessage: error?.message,
         errorName: error?.name,
-        errorCode: error.code,
+        errorCode: error?.code,
         stack: error?.stack,
       });
       throw error;

@@ -199,7 +199,7 @@ class WebHooks {
       emitter.on(CallbackEmitter.EVENTS.FAILURE, (error) => {
         this._exporter.agent.increment(METRIC_NAMES.HOOK_FAILURES, {
           callbackURL: hook.payload.callbackURL,
-          reason: error.code || error.name || 'unknown',
+          reason: error?.name || error?.code || 'unknown',
           eventId,
         });
       });

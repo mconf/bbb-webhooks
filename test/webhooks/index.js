@@ -253,6 +253,50 @@ export default function suite({
     })
   });
 
+  describe('/POST mapped rap-post-events-ended message', () => {
+    let catcher;
+
+    before((done) => {
+      catcher = new HooksPostCatcher(WH_CONFIG.permanentURLs[1].url);
+      const hooks = Hook.get().getAllGlobalHooks();
+      const hook = hooks[0];
+      Helpers.flushredis(hook);
+      catcher.start().then(() => {
+        done();
+      });
+    });
+
+    after((done) => {
+      const hooks = Hook.get().getAllGlobalHooks();
+      const hook = hooks[0];
+      Helpers.flushredis(hook);
+      catcher.stop();
+      done();
+    })
+
+    it('should post mapped rap-post-events-ended message', (done) => {
+      catcher.once('callback', (body) => {
+        try {
+          const parsed = JSON.parse(body?.event);
+          const { id, attributes } = parsed[0].data || {};
+          if (id === 'rap-post-events-ended'
+            && attributes['record-id'] === Helpers.rawMessagePostEventsEnded.payload.record_id
+            && attributes.success === true
+            && attributes.workflow === 'post_events_mconf_data'
+            && attributes.data?.activities?.length > 0) {
+            done();
+          } else {
+            done(new Error("incorrectly mapped rap-post-events-ended message: " + body?.event));
+          }
+        } catch (error) {
+          done(error);
+        }
+      });
+
+      redisClient.publish(testChannel, JSON.stringify(Helpers.rawMessagePostEventsEnded));
+    })
+  });
+
   describe('/POST raw message', () => {
     let catcher;
 

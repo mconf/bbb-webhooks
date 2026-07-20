@@ -202,5 +202,35 @@ helpers.rawMessageMeetingCreated = {
     }
   }
 };
+helpers.rawMessagePostEventsEnded = {
+  header: {
+    timestamp: 559978388,
+    name: 'post_events_ended',
+    current_time: 1784515407,
+    version: '0.0.1'
+  },
+  payload: {
+    success: true,
+    step_time: 1547,
+    data: {
+      activities: [{
+        name: 'Users Activities',
+        key: '1c33ac51/a77f2e54/964e58ce-1784515372853/activities.txt'
+      }],
+      chat: [{
+        name: 'Public Chat',
+        key: '1c33ac51/a77f2e54/964e58ce-1784515372853/chat.txt'
+      }],
+      presentations: [{
+        name: 'default-worka.pdf',
+        key: '1c33ac51/a77f2e54/964e58ce-1784515372853/presentations/fc9daf3e-1784515372964.pdf'
+      }]
+    },
+    workflow: 'post_events_mconf_data',
+    record_id: '964e58ce4788a1a3edd79c74417387abcf2edf58-1784515372853',
+    meeting_id: '964e58ce4788a1a3edd79c74417387abcf2edf58-1784515372853',
+    external_meeting_id: 'a77f2e5495fb613ec3fe8d86f933f523d73115aaf4c72653341a198f9bafc77a'
+  }
+};
 
 export default helpers;

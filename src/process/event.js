@@ -51,6 +51,8 @@ export default class WebhooksEvent {
     "rap-publish-ended",
     "rap-post-publish-started",
     "rap-post-publish-ended",
+    "rap-post-events-started",
+    "rap-post-events-ended",
     "poll-started",
     "poll-responded",
   ];
@@ -109,6 +111,8 @@ export default class WebhooksEvent {
       "publish_ended",
       "post_publish_started",
       "post_publish_ended",
+      "post_events_started",
+      "post_events_ended",
       "published",
       "unpublished",
       "deleted",
@@ -547,6 +551,10 @@ export default class WebhooksEvent {
         "download": data.download
       }
     }
+
+    if (this.outputEvent.data.id === "rap-post-events-ended" && data.data) {
+      this.outputEvent.data.attributes.data = data.data;
+    }
   }
 
   handleRecordingStatusChanged(message) {
@@ -700,6 +708,8 @@ export default class WebhooksEvent {
       case "deleted": return "rap-deleted";
       case "post_publish_started": return "rap-post-publish-started";
       case "post_publish_ended": return "rap-post-publish-ended";
+      case "post_events_started": return "rap-post-events-started";
+      case "post_events_ended": return "rap-post-events-ended";
     } })();
 
     return mappedMsg;

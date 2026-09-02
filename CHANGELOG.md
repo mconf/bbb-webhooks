@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### UNRELEASED
 
 * build(deps): assorted bumps and clean npm audit fix
+* build(deps): body-parser@2.3.0 (dev)
 
 ### v3.6.1
 

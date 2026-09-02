@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-### UNRELEASED
+### v3.7.0
 
+* feat: handle post_events_[started|ended]
+* fix(modules): abort startup when a mandatory module fails to load (opt out with mandatory: false)
+* fix(webhooks-api): answer XML for unhandled request errors
+* fix(webhooks-api): parse getRaw inside the guarded section of create
+* fix(webhooks-api): reject bind failures with the reported cause
+* test(webhooks): assert hook state independently of storage order
+* build(deps): express@5.2.1 (up from 4.22.2)
 * build(deps): assorted bumps and clean npm audit fix
 * build(deps): body-parser@2.3.0 (dev)
+* build: pin exact dependency versions with save-exact
 
 ### v3.6.1
 

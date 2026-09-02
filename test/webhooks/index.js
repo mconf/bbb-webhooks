@@ -93,7 +93,11 @@ export default function suite({
         .expect('Content-Type', /text\/xml/)
         .expect(200, () => {
           const hooks = Hook.get().getAllGlobalHooks();
-          if (hooks && hooks.every(hook => hook.payload.callbackURL != Helpers.callback)) done();
+          if (hooks && hooks.every(hook => hook.payload.callbackURL != Helpers.callback)) {
+            done();
+          } else {
+            done(new Error("hook was not destroyed"));
+          }
         })
     })
   });
@@ -110,7 +114,7 @@ export default function suite({
         .expect('Content-Type', /text\/xml/)
         .expect(200, () => {
           const hooks = Hook.get().getAllGlobalHooks();
-          if (hooks && hooks[0].payload.callbackURL == WH_CONFIG.permanentURLs[0].url) {
+          if (hooks && hooks.some(hook => hook.payload.callbackURL == WH_CONFIG.permanentURLs[0].url)) {
             done();
           } else {
             done(new Error("should not delete permanent"));

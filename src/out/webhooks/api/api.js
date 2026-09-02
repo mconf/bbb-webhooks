@@ -117,15 +117,9 @@ export default class API {
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
     const eventID = urlObj.query["eventID"];
-    let getRaw = urlObj.query["getRaw"];
+    const rawGetRaw = urlObj.query["getRaw"];
     let returncode = responses.RETURN_CODES.SUCCESS;
     let messageKey;
-
-    if (getRaw) {
-      getRaw = JSON.parse(getRaw.toLowerCase());
-    } else {
-      getRaw = false;
-    }
 
     if (callbackURL == null) {
       API.respondWithXML(res, responses.missingParamCallbackURL);
@@ -133,6 +127,10 @@ export default class API {
       messageKey = responses.MESSAGE_KEYS.missingParamCallbackURL;
     } else {
       try {
+        // getRaw arrives unvalidated from the query string, so it is parsed
+        // inside the guarded section: a malformed value answers with the
+        // createHookError XML instead of aborting the handler.
+        const getRaw = rawGetRaw ? JSON.parse(rawGetRaw.toLowerCase()) : false;
         const { hook, duplicated } = await API.storage.get().addSubscription({
           callbackURL,
           meetingID,

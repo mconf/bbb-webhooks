@@ -149,6 +149,29 @@ export default function suite({
     })
   });
 
+  describe('GET /hooks/create with a malformed getRaw', () => {
+    const cbUrl = 'http://127.0.0.1:3014/callback';
+
+    it('should answer createHookError and register nothing', (done) => {
+      const createPath = `${Helpers.port}${Helpers.apiPath}create/?callbackURL=${HooksPostCatcher.encodeForUrl(cbUrl)}&getRaw=notabool`;
+      const checksum = Utils.checksumAPI(Helpers.url + createPath, sharedSecret, CHECKSUM_ALGORITHM);
+
+      request(Helpers.url)
+        .get(`${createPath}&checksum=${checksum}`)
+        .expect('Content-Type', /text\/xml/)
+        .expect(200, (err, res) => {
+          if (err) return done(err);
+          if (!res.text.includes(responses.MESSAGE_KEYS.createHookError)) {
+            return done(new Error(`expected createHookError, got: ${res.text}`));
+          }
+          if (Hook.get().findByField('callbackURL', cbUrl)) {
+            return done(new Error("hook was registered despite the malformed getRaw"));
+          }
+          return done();
+        })
+    })
+  });
+
   describe('unhandled errors in API handlers', () => {
     afterEach(() => {
       sinon.restore();

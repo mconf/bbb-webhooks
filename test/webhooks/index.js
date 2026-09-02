@@ -1,7 +1,9 @@
-import { describe, it, before, after, beforeEach } from 'mocha';
+import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import request from 'supertest';
 import config from 'config';
+import sinon from 'sinon';
 import Utils from '../../src/out/webhooks/utils.js';
+import responses from '../../src/out/webhooks/api/responses.js';
 import Hook from '../../src/db/redis/hooks.js';
 import Helpers from './helpers.js'
 import HooksPostCatcher from './hooks-post-catcher.js';
@@ -143,6 +145,29 @@ export default function suite({
           } else {
             done(new Error("getRaw hook was not created"))
           }
+        })
+    })
+  });
+
+  describe('unhandled errors in API handlers', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should answer XML instead of the default HTML error page', (done) => {
+      // ipFromRequest runs in the request logging middleware, ahead of every
+      // route, so throwing there reaches the router's terminal error handler.
+      sinon.stub(Utils, 'ipFromRequest').throws(new Error('boom'));
+
+      request(Helpers.url)
+        .get(`${Helpers.port}${Helpers.apiPath}ping`)
+        .expect('Content-Type', /text\/xml/)
+        .expect(500, (err, res) => {
+          if (err) return done(err);
+          if (!res.text.includes(responses.MESSAGE_KEYS.unknownError)) {
+            return done(new Error(`expected unknownError, got: ${res.text}`));
+          }
+          return done();
         })
     })
   });

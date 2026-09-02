@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+### UNRELEASED
+
+* build(deps): assorted bumps and clean npm audit fix
+
 ### v3.6.1
 
 * fix: re-enable test and hadolint workflows

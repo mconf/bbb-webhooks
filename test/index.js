@@ -4,6 +4,7 @@ import config from 'config';
 import Application from '../application.js';
 import WebhooksSuite, { MOD_CONFIG as WH_CONFIG } from './webhooks/index.js';
 import XAPISuite, { MOD_CONFIG as XAPI_CONFIG } from './xapi/index.js';
+import ModulesSuite from './modules/index.js';
 
 let MODULES = config.get('modules');
 MODULES = config.util.extendDeep(MODULES, WH_CONFIG, XAPI_CONFIG);
@@ -65,5 +66,9 @@ describe('bbb-webhooks test suite', () => {
     };
 
     XAPISuite(context);
+  });
+
+  describe('modules tests', () => {
+    ModulesSuite({ force: ALL_TESTS });
   });
 });

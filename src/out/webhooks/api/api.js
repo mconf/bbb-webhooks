@@ -237,10 +237,13 @@ export default class API {
 
   start(port, bind) {
     return new Promise((resolve, reject) => {
-      this.server = this.app.listen(port, bind, () => {
-        if (this.server.address() == null) {
-          API.logger.error(`aborting, could not bind to port ${port}`);
-          return reject(new Error(`API failed to start, EARADDRINUSE`));
+      // Express registers its own 'error' listener when a callback is passed,
+      // so a bind failure arrives here as the first argument rather than as an
+      // uncaught exception.
+      this.server = this.app.listen(port, bind, (error) => {
+        if (error || this.server.address() == null) {
+          API.logger.error(`aborting, could not bind to ${bind}:${port}`, error);
+          return reject(error || new Error(`API failed to start on ${bind}:${port}`));
         }
         API.logger.info(`listening on port ${port} in ${this.app.settings.env.toUpperCase()} mode`);
         return resolve();

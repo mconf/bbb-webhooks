@@ -35,6 +35,7 @@ export default class API {
     this._supportedChecksumAlgorithms = options.supportedChecksumAlgorithms;
 
     this._validateChecksum = this._validateChecksum.bind(this);
+    this._handleError = this._handleError.bind(this);
 
     this._registerRoutes();
   }
@@ -57,6 +58,52 @@ export default class API {
       res.write("bbb-webhooks API up!");
       res.end();
     });
+
+    // Must be registered last: Express picks the terminal error handler by
+    // arity and by position, and routes declared after it are unreachable.
+    this.app.use(this._handleError);
+  }
+
+  /**
+   * _handleError - Terminal error handler for the API router.
+   *                Express forwards handler exceptions and rejected handler
+   *                promises here. Without it they reach Express' own default
+   *                handler, which answers HTML and writes the stack straight to
+   *                stderr, bypassing the logger.
+   * @param {Error} error - The error raised by an upstream handler.
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @param {Function} next - The next middleware in the chain.
+   * @private
+   */
+  /* eslint-disable-next-line no-unused-vars */
+  _handleError(error, req, res, next) {
+    const urlObj = url.parse(req.url, true);
+
+    API.logger.error('unhandled API error', {
+      error: error.stack,
+      method: req.method,
+      path: urlObj.pathname,
+    });
+
+    this._exporter.agent.increment(METRIC_NAMES.API_REQUESTS, {
+      method: req.method,
+      path: urlObj.pathname,
+      returncode: responses.RETURN_CODES.FAILED,
+      messageKey: responses.MESSAGE_KEYS.unknownError,
+    });
+
+    // The response is already whole - amending it would corrupt it.
+    if (res.writableEnded) return;
+    // Committed but unfinished: a reset is the only way left to tell the client
+    // that what it received is not the whole response.
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
+
+    res.status(500);
+    API.respondWithXML(res, responses.unknownError);
   }
 
   _isHookPermanent(callbackURL) {
@@ -70,15 +117,9 @@ export default class API {
     const callbackURL = urlObj.query["callbackURL"];
     const meetingID = urlObj.query["meetingID"];
     const eventID = urlObj.query["eventID"];
-    let getRaw = urlObj.query["getRaw"];
+    const rawGetRaw = urlObj.query["getRaw"];
     let returncode = responses.RETURN_CODES.SUCCESS;
     let messageKey;
-
-    if (getRaw) {
-      getRaw = JSON.parse(getRaw.toLowerCase());
-    } else {
-      getRaw = false;
-    }
 
     if (callbackURL == null) {
       API.respondWithXML(res, responses.missingParamCallbackURL);
@@ -86,6 +127,10 @@ export default class API {
       messageKey = responses.MESSAGE_KEYS.missingParamCallbackURL;
     } else {
       try {
+        // getRaw arrives unvalidated from the query string, so it is parsed
+        // inside the guarded section: a malformed value answers with the
+        // createHookError XML instead of aborting the handler.
+        const getRaw = rawGetRaw ? JSON.parse(rawGetRaw.toLowerCase()) : false;
         const { hook, duplicated } = await API.storage.get().addSubscription({
           callbackURL,
           meetingID,
@@ -237,10 +282,13 @@ export default class API {
 
   start(port, bind) {
     return new Promise((resolve, reject) => {
-      this.server = this.app.listen(port, bind, () => {
-        if (this.server.address() == null) {
-          API.logger.error(`aborting, could not bind to port ${port}`);
-          return reject(new Error(`API failed to start, EARADDRINUSE`));
+      // Express registers its own 'error' listener when a callback is passed,
+      // so a bind failure arrives here as the first argument rather than as an
+      // uncaught exception.
+      this.server = this.app.listen(port, bind, (error) => {
+        if (error || this.server.address() == null) {
+          API.logger.error(`aborting, could not bind to ${bind}:${port}`, error);
+          return reject(error || new Error(`API failed to start on ${bind}:${port}`));
         }
         API.logger.info(`listening on port ${port} in ${this.app.settings.env.toUpperCase()} mode`);
         return resolve();

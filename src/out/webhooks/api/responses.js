@@ -11,6 +11,7 @@ const MESSAGE_KEYS = {
   destroyMissingHook: "destroyMissingHook",
   missingParamCallbackURL: "missingParamCallbackURL",
   missingParamHookID: "missingParamHookID",
+  unknownError: "unknownError",
 };
 
 const failure = (key, msg) =>
@@ -76,6 +77,11 @@ const listFailure = failure(
   "An error happened while listing registered hooks. Check the logs."
 );
 
+const unknownError = failure(
+  MESSAGE_KEYS.unknownError,
+  "An unexpected error happened while handling your request. Check the logs."
+);
+
 export default {
   RETURN_CODES,
   MESSAGE_KEYS,
@@ -89,4 +95,5 @@ export default {
   listFailure,
   missingParamCallbackURL,
   missingParamHookID,
+  unknownError,
 };

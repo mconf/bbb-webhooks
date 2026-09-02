@@ -41,6 +41,8 @@ redis:
 # Basic module config entry template:
 #   key: <relative file path to app root if drop-in or module name if npm/github>,
 #     enabled: true|false (optional, default: true)
+#     mandatory: true|false (optional, default: true) - when false, a module that
+#       fails to load is logged and skipped; otherwise startup is aborted
 #     type: in|out|db,
 #     config: <module-specific config> (optional)
 #

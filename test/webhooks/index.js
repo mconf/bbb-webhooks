@@ -1,7 +1,9 @@
-import { describe, it, before, after, beforeEach } from 'mocha';
+import { describe, it, before, after, beforeEach, afterEach } from 'mocha';
 import request from 'supertest';
 import config from 'config';
+import sinon from 'sinon';
 import Utils from '../../src/out/webhooks/utils.js';
+import responses from '../../src/out/webhooks/api/responses.js';
 import Hook from '../../src/db/redis/hooks.js';
 import Helpers from './helpers.js'
 import HooksPostCatcher from './hooks-post-catcher.js';
@@ -91,7 +93,11 @@ export default function suite({
         .expect('Content-Type', /text\/xml/)
         .expect(200, () => {
           const hooks = Hook.get().getAllGlobalHooks();
-          if (hooks && hooks.every(hook => hook.payload.callbackURL != Helpers.callback)) done();
+          if (hooks && hooks.every(hook => hook.payload.callbackURL != Helpers.callback)) {
+            done();
+          } else {
+            done(new Error("hook was not destroyed"));
+          }
         })
     })
   });
@@ -108,7 +114,7 @@ export default function suite({
         .expect('Content-Type', /text\/xml/)
         .expect(200, () => {
           const hooks = Hook.get().getAllGlobalHooks();
-          if (hooks && hooks[0].payload.callbackURL == WH_CONFIG.permanentURLs[0].url) {
+          if (hooks && hooks.some(hook => hook.payload.callbackURL == WH_CONFIG.permanentURLs[0].url)) {
             done();
           } else {
             done(new Error("should not delete permanent"));
@@ -143,6 +149,52 @@ export default function suite({
           } else {
             done(new Error("getRaw hook was not created"))
           }
+        })
+    })
+  });
+
+  describe('GET /hooks/create with a malformed getRaw', () => {
+    const cbUrl = 'http://127.0.0.1:3014/callback';
+
+    it('should answer createHookError and register nothing', (done) => {
+      const createPath = `${Helpers.port}${Helpers.apiPath}create/?callbackURL=${HooksPostCatcher.encodeForUrl(cbUrl)}&getRaw=notabool`;
+      const checksum = Utils.checksumAPI(Helpers.url + createPath, sharedSecret, CHECKSUM_ALGORITHM);
+
+      request(Helpers.url)
+        .get(`${createPath}&checksum=${checksum}`)
+        .expect('Content-Type', /text\/xml/)
+        .expect(200, (err, res) => {
+          if (err) return done(err);
+          if (!res.text.includes(responses.MESSAGE_KEYS.createHookError)) {
+            return done(new Error(`expected createHookError, got: ${res.text}`));
+          }
+          if (Hook.get().findByField('callbackURL', cbUrl)) {
+            return done(new Error("hook was registered despite the malformed getRaw"));
+          }
+          return done();
+        })
+    })
+  });
+
+  describe('unhandled errors in API handlers', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should answer XML instead of the default HTML error page', (done) => {
+      // ipFromRequest runs in the request logging middleware, ahead of every
+      // route, so throwing there reaches the router's terminal error handler.
+      sinon.stub(Utils, 'ipFromRequest').throws(new Error('boom'));
+
+      request(Helpers.url)
+        .get(`${Helpers.port}${Helpers.apiPath}ping`)
+        .expect('Content-Type', /text\/xml/)
+        .expect(500, (err, res) => {
+          if (err) return done(err);
+          if (!res.text.includes(responses.MESSAGE_KEYS.unknownError)) {
+            return done(new Error(`expected unknownError, got: ${res.text}`));
+          }
+          return done();
         })
     })
   });

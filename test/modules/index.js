@@ -1,9 +1,35 @@
 import { describe, it, before, after } from 'mocha';
 import assert from 'assert';
 import net from 'net';
+import ModuleManager from '../../src/modules/index.js';
 import API from '../../src/out/webhooks/api/api.js';
 
 const MODULES_SUITE = process.env.MODULES_SUITE ? process.env.MODULES_SUITE === 'true' : false;
+const PROCESS_EVENTS = ['SIGTERM', 'SIGINT', 'uncaughtException', 'unhandledRejection'];
+
+// ModuleManager.load registers process-wide signal and rejection handlers on its
+// way out. The copies a successful load leaves behind would make a single stray
+// rejection tear the whole suite down more than once.
+const withProcessHandlersRestored = async (fn) => {
+  const snapshot = PROCESS_EVENTS.map((event) => [event, process.listeners(event)]);
+
+  try {
+    return await fn();
+  } finally {
+    snapshot.forEach(([event, listeners]) => {
+      process.removeAllListeners(event);
+      listeners.forEach((listener) => process.on(event, listener));
+    });
+  }
+};
+
+const unloadableModule = (overrides = {}) => ({
+  '../out/module-that-does-not-exist.js': {
+    enabled: true,
+    type: 'out',
+    ...overrides,
+  },
+});
 
 export default function suite({ force }) {
   if (!MODULES_SUITE && !force) return;
@@ -35,5 +61,21 @@ export default function suite({ force }) {
         (error) => error.code === 'EADDRINUSE',
       );
     });
+  });
+
+  describe('module load failure', () => {
+    it('should abort the load when a mandatory module fails', () => withProcessHandlersRestored(async () => {
+      const manager = new ModuleManager(unloadableModule());
+
+      await assert.rejects(() => manager.load());
+      assert.deepStrictEqual(manager.getOutputModules(), []);
+    }));
+
+    it('should skip a module explicitly marked optional', () => withProcessHandlersRestored(async () => {
+      const manager = new ModuleManager(unloadableModule({ mandatory: false }));
+      const { outputModules } = await manager.load();
+
+      assert.deepStrictEqual(outputModules, []);
+    }));
   });
 }

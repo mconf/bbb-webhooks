@@ -32,7 +32,16 @@ class Application {
   async start() {
     if (this._initialized) return Promise.resolve();
 
-    const { inputModules, outputModules } = await this.moduleManager.load();
+    let inputModules, outputModules;
+
+    try {
+      ({ inputModules, outputModules } = await this.moduleManager.load());
+    } catch (error) {
+      Logger.error("CRITICAL: failed to load modules, shutting down", error);
+      await this.moduleManager.stopModules();
+      process.exit(1);
+    }
+
     this.eventProcessor = new EventProcessor(inputModules, outputModules);
     await this.eventProcessor.start();
 

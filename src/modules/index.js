@@ -126,12 +126,22 @@ export default class ModuleManager {
           { module: name, moduleType: description.type },
         );
       } catch (error) {
-        this.logger.error(`failed to load module ${name}`, error);
         Exporter.agent.set(
           Exporter.METRIC_NAMES.MODULE_STATUS,
           0,
           { module: name, moduleType: description.type },
         );
+
+        // A half-loaded application is indistinguishable from a healthy one from
+        // the outside: the process stays up while the capability the module
+        // provides is silently gone. Only modules marked optional are skipped.
+        if (description.mandatory === false) {
+          this.logger.error(`failed to load optional module ${name}, skipping`, error);
+          continue;
+        }
+
+        this.logger.error(`CRITICAL: failed to load mandatory module ${name}`, error);
+        throw error;
       }
     }
 

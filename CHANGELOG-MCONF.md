@@ -2,6 +2,16 @@
 
 All notables changes *unique to Mconf's fork of bbb-webhooks* are documented in this file.
 
+Releases are versioned as `<upstream version>-<N>`: the bigbluebutton/bbb-webhooks
+release the fork is based on, followed by a counter of Mconf releases on that base
+(e.g. v3.8.0-1, v3.8.0-2). Releases up to v2.7.0 used a separate version line, one
+major behind upstream.
+
+### v3.8.0-1
+
+* build: merge with bigbluebutton/bbb-webhooks@v3.8.0 (see CHANGELOG.md)
+* build: switch to the `<upstream version>-<N>` version scheme
+
 ### v2.7.0
 
 * build: merge with bigbluebutton/bbb-webhooks@v3.7.0 (see CHANGELOG.md)
